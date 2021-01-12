@@ -1,13 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe 'Items API' do
-  let(:todo) { create(:todo) }
-  let(:items) { create_list(:item, 20, todo_id: todo.id) }
-  let(:todo_id) { todo.id }
-  let(:id) { items.first.id }
+  let!(:todo) { create(:todo) }
+  let!(:items) { create_list(:item, 20, todo_id: todo.id) }
+  let!(:todo_id) { todo.id }
+  let!(:id) { items.first.id }
 
   describe 'GET /todos/:todo_id/items' do
-    before { get '/todos/#{todo_id}/items' }
+    before { get "/todos/#{todo_id}/items" }
 
     context 'when todo exists' do
       it 'returns status code 200' do
@@ -96,23 +96,23 @@ RSpec.describe 'Items API' do
 
       it 'updates the item' do
         updated_item = Item.find(id)
-        expect(updated_item).to match(/Mozart/)
+        expect(updated_item.name).to match(/Mozart/)
+      end
+    end
+
+    context 'when the item does not exist' do
+      let(:id) { 0 }
+  
+      it 'returns status code 404' do
+        expect(response).to have_http_status(404)
+      end
+  
+      it 'returns a not found message' do
+        expect(response.body).to match(/Couldn't find Item/)
       end
     end
   end
-
-  context 'when the item does not exist' do
-    let(:id) { 0 }
-
-    it 'returns status code 404' do
-      expect(response).to have_http_status(404)
-    end
-
-    it 'returns a not found message' do
-      expect(response.body).to match(/Couldn't find Item/)
-    end
-  end
-
+ 
    # Test suite for DELETE /todos/:id/items/:id
    describe 'DELETE /todos/:id' do
     before { delete "/todos/#{todo_id}/items/#{id}" }
